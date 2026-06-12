@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<title>Kuis HOTS Matematika Kelas 7</title>
+<meta charset="UTF-8">
+<style>
+body{
+    font-family:Arial;
+    background:#f0f2f5;
+    margin:0;
+    padding:20px;
+}
+
+.container{
+max-width:700px;
+margin:auto;
+background:white;
+padding:30px;
+border-radius:15px;
+box-shadow:0 0 10px rgba(0,0,0,0.2);
+}
+
+h2{
+color:#2c3e50;
+}
+
+.stimulus{
+background:#eef6ff;
+padding:15px;
+border-left:5px solid #3498db;
+margin-bottom:15px;
+}
+
+.option{
+margin:10px 0;
+}
+
+button{
+padding:10px 20px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+margin-top:20px;
+font-size:16px;
+}
+
+.next{
+background:#3498db;
+color:white;
+}
+
+.back{
+background:#7f8c8d;
+color:white;
+}
+
+#result{
+display:none;
+text-align:center;
+}
+
+.nilai{
+font-size:40px;
+color:green;
+} </style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<div id="quiz"></div>
+
+<div id="result">
+    <h2>Kuis Selesai</h2>
+    <p>Nilai Anda:</p>
+    <div class="nilai" id="score"></div>
+</div>
+
+</div>
+
+<script>
+
+const questions = [
+
+{
+type:"radio",
+stimulus:"Koperasi sekolah menjual paket alat tulis berisi 2 buku tulis dan 3 pensil. Harga sebuah buku Rp4.000 dan sebuah pensil Rp2.000. Dita membawa uang Rp20.000. Ia ingin membeli 1 paket dan sebuah penghapus seharga Rp3.000.",
+question:"Berapakah sisa uang Dita?",
+options:[
+"Rp3.000",
+"Rp5.000",
+"Rp7.000",
+"Rp9.000"
+],
+answer:"Rp3.000"
+},
+
+{
+type:"radio",
+stimulus:"Budi berangkat ke sekolah dengan sepeda. Jarak rumah ke sekolah 6 km. Ia menempuh perjalanan selama 24 menit dengan kecepatan tetap.",
+question:"Jika jarak rumah ke perpustakaan 10 km, berapa waktu yang diperlukan Budi untuk sampai ke perpustakaan?",
+options:[
+"30 menit",
+"36 menit",
+"40 menit",
+"48 menit"
+],
+answer:"40 menit"
+},
+
+{
+type:"checkbox",
+stimulus:"Sebuah kantin memberikan diskon 20% untuk semua makanan. Harga awal beberapa makanan ditunjukkan berikut.",
+question:"Pilih semua pernyataan yang benar.",
+options:[
+"Diskon dari makanan seharga Rp50.000 adalah Rp10.000",
+"Harga setelah diskon Rp50.000 menjadi Rp40.000",
+"Diskon Rp10.000 dari Rp50.000 sama dengan 25%",
+"Harga awal Rp60.000 setelah diskon menjadi Rp48.000"
+],
+answer:[
+"Diskon dari makanan seharga Rp50.000 adalah Rp10.000",
+"Harga setelah diskon Rp50.000 menjadi Rp40.000",
+"Harga awal Rp60.000 setelah diskon menjadi Rp48.000"
+]
+},
+
+{
+type:"checkbox",
+stimulus:"Ketua kelas mencatat jumlah siswa yang hadir setiap hari. Ia menggunakan bilangan bulat dalam laporannya.",
+question:"Pilih semua pernyataan yang benar.",
+options:[
+"-5 termasuk bilangan bulat",
+"0 termasuk bilangan bulat",
+"3,5 termasuk bilangan bulat",
+"12 termasuk bilangan bulat"
+],
+answer:[
+"-5 termasuk bilangan bulat",
+"0 termasuk bilangan bulat",
+"12 termasuk bilangan bulat"
+]
+},
+
+{
+type:"truefalse",
+stimulus:"Dalam kegiatan bakti sosial, tersedia 24 paket sembako yang akan dibagikan sama rata kepada 6 kelompok warga.",
+question:"Pernyataan: 'Setiap kelompok menerima 5 paket sembako.'",
+options:[
+"Benar",
+"Salah"
+],
+answer:"Salah"
+}
+
+];
+
+let current=0;
+let score=0;
+let userAnswers=[];
+
+function showQuestion(){
+
+let q=questions[current];
+
+let html="";
+
+html+="<h2>Soal "+(current+1)+" dari "+questions.length+"</h2>";
+
+html+='<div class="stimulus">'+q.stimulus+'</div>';
+
+html+="<p><b>"+q.question+"</b></p>";
+
+q.options.forEach(option=>{
+
+let checked="";
+
+if(userAnswers[current]){
+    if(Array.isArray(userAnswers[current])){
+        checked=userAnswers[current].includes(option)?"checked":"";
+    }else{
+        checked=userAnswers[current]===option?"checked":"";
+    }
+}
+
+if(q.type==="radio" || q.type==="truefalse"){
+html+=`
+<div class="option">
+<label>
+<input type="radio" name="answer" value="${option}" ${checked}>
+${option}
+</label>
+</div>
+`;
+}
+
+if(q.type==="checkbox"){
+html+=`
+<div class="option">
+<label>
+<input type="checkbox" name="answer" value="${option}" ${checked}>
+${option}
+</label>
+</div>
+`;
+}
+
+});
+
+if(current>0){
+html+='<button class="back" onclick="previousQuestion()">Kembali</button>';
+}
+
+if(current<questions.length-1){
+html+='<button class="next" onclick="nextQuestion()">Lanjut</button>';
+}else{
+html+='<button class="next" onclick="finishQuiz()">Selesai</button>';
+}
+
+document.getElementById("quiz").innerHTML=html;
+
+}
+
+function saveAnswer(){
+
+let q=questions[current];
+
+if(q.type==="radio" || q.type==="truefalse"){
+
+let selected=document.querySelector('input[name="answer"]:checked');
+
+userAnswers[current]=selected ? selected.value : null;
+
+}
+
+if(q.type==="checkbox"){
+
+let selected=document.querySelectorAll('input[name="answer"]:checked');
+
+userAnswers[current]=Array.from(selected).map(item=>item.value);
+
+}
+
+}
+
+function nextQuestion(){
+
+saveAnswer();
+
+current++;
+
+showQuestion();
+
+}
+
+function previousQuestion(){
+
+saveAnswer();
+
+current--;
+
+showQuestion();
+
+}
+
+function finishQuiz(){
+
+saveAnswer();
+
+score=0;
+
+questions.forEach((q,index)=>{
+
+let user=userAnswers[index];
+
+if(q.type==="radio" || q.type==="truefalse"){
+
+if(user===q.answer){
+score+=20;
+}
+
+}
+
+if(q.type==="checkbox"){
+
+if(JSON.stringify((user||[]).sort())===JSON.stringify(q.answer.sort())){
+score+=20;
+}
+
+}
+
+});
+
+document.getElementById("quiz").style.display="none";
+
+document.getElementById("result").style.display="block";
+
+document.getElementById("score").innerHTML=score+" / 100";
+
+}
+
+showQuestion();
+
+</script>
+
+</body>
+</html>
